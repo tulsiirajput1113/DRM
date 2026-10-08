@@ -1,0 +1,72 @@
+{% extends 'DRM_App/base.html' %}
+
+{% block title %}Register Account — DRM Enterprise Guard{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center my-4">
+    <div class="col-md-6 col-lg-5">
+        <div class="card card-custom p-4 p-md-5">
+            <div class="text-center mb-4">
+                <div class="stat-icon mx-auto mb-3" style="background: #0c4a6e; color: #38bdf8; border: 1.5px solid #0284c7; width: 64px; height: 64px; font-size: 1.8rem;">
+                    <i class="bi bi-person-plus-fill"></i>
+                </div>
+                <h3 class="fw-bold text-white mb-1">Create DRM Account</h3>
+                <p class="text-white small mb-0">Register your account to request digital access licenses</p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label class="form-label text-white fw-bold">Username *</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}<div class="text-danger fw-bold small mt-1">{{ form.username.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col">
+                        <label class="form-label text-white fw-bold">First Name</label>
+                        {{ form.first_name }}
+                    </div>
+                    <div class="col">
+                        <label class="form-label text-white fw-bold">Last Name</label>
+                        {{ form.last_name }}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-white fw-bold">Email Address *</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}<div class="text-danger fw-bold small mt-1">{{ form.email.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-white fw-bold">Select Account Role *</label>
+                    {{ form.role }}
+                    <div class="form-text text-white small fw-medium mt-1">{{ form.role.help_text }}</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-white fw-bold">Password *</label>
+                    {{ form.password }}
+                    {% if form.password.errors %}<div class="text-danger fw-bold small mt-1">{{ form.password.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label text-white fw-bold">Confirm Password *</label>
+                    {{ form.confirm_password }}
+                    {% if form.confirm_password.errors %}<div class="text-danger fw-bold small mt-1">{{ form.confirm_password.errors.0 }}</div>{% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-primary-custom w-100 py-2.5 mb-3 fw-bold fs-6">
+                    <i class="bi bi-check-circle-fill me-2"></i> Register Account
+                </button>
+            </form>
+
+            <div class="text-center text-white small">
+                Already registered? <a href="{% url 'login' %}" class="text-cyan text-decoration-none fw-bold" style="color: var(--drm-cyan) !important;">Sign In Here &rarr;</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

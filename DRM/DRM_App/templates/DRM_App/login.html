@@ -1,0 +1,46 @@
+{% extends 'DRM_App/base.html' %}
+
+{% block title %}Login — DRM Enterprise Guard{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center my-5">
+    <div class="col-md-5 col-lg-4">
+        <div class="card card-custom p-4 p-md-5">
+            <div class="text-center mb-4">
+                <div class="stat-icon mx-auto mb-3" style="background: #0c4a6e; color: #38bdf8; border: 1.5px solid #0284c7; width: 64px; height: 64px; font-size: 1.8rem;">
+                    <i class="bi bi-shield-lock-fill"></i>
+                </div>
+                <h3 class="fw-bold text-white mb-1">DRM System Login</h3>
+                <p class="text-white small mb-0">Sign in to authenticate digital rights clearance</p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label text-white fw-bold">Username</label>
+                    <div class="input-group">
+                        <span class="input-group-text border-secondary text-info" style="background: #1e293b; border-color: #334155 !important;"><i class="bi bi-person-fill"></i></span>
+                        <input type="text" name="username" class="form-control text-white" placeholder="Enter username" required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label text-white fw-bold">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text border-secondary text-info" style="background: #1e293b; border-color: #334155 !important;"><i class="bi bi-key-fill"></i></span>
+                        <input type="password" name="password" class="form-control text-white" placeholder="Enter password" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary-custom w-100 py-2.5 mb-3 fw-bold fs-6">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> Authenticate & Sign In
+                </button>
+            </form>
+
+            <div class="text-center text-white small">
+                Don't have an account? <a href="{% url 'register' %}" class="text-cyan text-decoration-none fw-bold" style="color: var(--drm-cyan) !important;">Register Account Here &rarr;</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

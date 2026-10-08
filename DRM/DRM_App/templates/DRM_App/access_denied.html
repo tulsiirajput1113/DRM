@@ -1,0 +1,52 @@
+{% extends 'DRM_App/base.html' %}
+
+{% block title %}Access Denied — DRM Protection Alert{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center my-4">
+    <div class="col-lg-7">
+        <div class="card card-custom p-5 border-danger border-opacity-50 text-center">
+            
+            <div class="stat-icon bg-danger bg-opacity-20 text-danger mx-auto mb-4" style="width: 72px; height: 72px; font-size: 2.2rem;">
+                <i class="bi bi-shield-lock-fill"></i>
+            </div>
+
+            <h2 class="fw-bold text-white mb-2">DRM Authorization Failed</h2>
+            <div class="badge bg-danger bg-opacity-20 text-danger border border-danger px-3 py-2 fs-6 mx-auto mb-4" style="max-width: fit-content;">
+                STATUS: {{ access_status }}
+            </div>
+
+            <p class="text-light fs-5 mb-4">
+                You do not have a valid active digital rights license to access <strong class="text-warning">"{{ content.title }}"</strong>.
+            </p>
+
+            <div class="alert alert-dark border border-secondary text-start mb-4">
+                <h6 class="fw-bold text-danger mb-1"><i class="bi bi-exclamation-triangle-fill me-2"></i> Reason for Rejection:</h6>
+                <p class="mb-0 text-muted small">{{ reason }}</p>
+            </div>
+
+            {% if license_obj %}
+            <div class="card bg-dark border-secondary p-3 text-start mb-4">
+                <h6 class="fw-bold text-white mb-2">License History Details:</h6>
+                <div class="row small text-muted">
+                    <div class="col-6">License ID: <strong>#{{ license_obj.id }}</strong></div>
+                    <div class="col-6">Current Status: <strong class="text-warning">{{ license_obj.status }}</strong></div>
+                    <div class="col-6 mt-1">Start Date: {{ license_obj.start_date|date:"M d, Y" }}</div>
+                    <div class="col-6 mt-1">Expired Date: <strong class="text-danger">{{ license_obj.expiry_date|date:"M d, Y H:i" }}</strong></div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{% url 'content_list' %}" class="btn btn-outline-secondary px-4">
+                    <i class="bi bi-arrow-left me-1"></i> Return to Catalog
+                </a>
+                <a href="{% url 'dashboard' %}" class="btn btn-primary-custom px-4">
+                    <i class="bi bi-house-door me-1"></i> Dashboard
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

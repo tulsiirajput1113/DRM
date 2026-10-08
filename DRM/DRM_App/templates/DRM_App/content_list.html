@@ -1,0 +1,149 @@
+{% extends 'DRM_App/base.html' %}
+
+{% block title %}Digital Content Catalog — DRM Guard{% endblock %}
+
+{% block content %}
+<!-- HEADER BANNER -->
+<div class="page-header-banner d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="badge bg-primary bg-opacity-10 text-cyan border border-info border-opacity-30 rounded-pill px-3 py-1 fw-semibold">
+                <i class="bi bi-shield-lock-fill me-1"></i> DRM Protected Catalog
+            </span>
+            <span class="text-muted small">| Total Assets: <strong>{{ content_items|length }}</strong></span>
+        </div>
+        <h2 class="fw-bold text-white mb-1">Protected Digital Asset Catalog</h2>
+        <p class="text-muted mb-0">Browse DRM-encrypted enterprise files and document assets. Access requires valid rights clearance.</p>
+    </div>
+    
+    {% if user.profile.is_content_manager %}
+    <div>
+        <a href="{% url 'content_create' %}" class="btn btn-primary-custom">
+            <i class="bi bi-plus-circle-fill"></i> Publish New Asset
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- SEARCH & FILTER BAR -->
+<div class="card card-custom p-3 mb-4">
+    <div class="row g-3 align-items-center">
+        <div class="col-md-7 col-lg-8">
+            <div class="input-group">
+                <span class="input-group-text bg-dark border-secondary text-cyan border-opacity-50">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" id="catalogSearchInput" class="form-control" placeholder="Search protected assets by title, description, or owner..." onkeyup="filterCatalog()">
+            </div>
+        </div>
+        <div class="col-md-5 col-lg-4 d-flex justify-content-md-end gap-2">
+            <div class="btn-group w-100" role="group">
+                <button type="button" class="btn btn-glass btn-sm active text-cyan" onclick="filterCategory('all', this)">All</button>
+                <button type="button" class="btn btn-glass btn-sm" onclick="filterCategory('accessible', this)">Authorized</button>
+                <button type="button" class="btn btn-glass btn-sm" onclick="filterCategory('locked', this)">Locked</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if content_items %}
+<div class="row g-4" id="catalogGrid">
+    {% for item in content_items %}
+    <div class="col-md-6 col-lg-4 catalog-item" data-access="{% if item.has_access %}accessible{% else %}locked{% endif %}" data-text="{{ item.object.title|lower }} {{ item.object.description|lower }} {{ item.object.owner.username|lower }}">
+        <div class="card card-custom card-interactive h-100 p-4 d-flex flex-column">
+            
+            <!-- TOP CARD HEADER -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="badge {{ item.badge_class }} px-2.5 py-1.5 fw-bold d-inline-flex align-items-center gap-1">
+                    {% if item.has_access %}<i class="bi bi-unlock-fill"></i>{% else %}<i class="bi bi-lock-fill"></i>{% endif %}
+                    {{ item.badge_text }}
+                </span>
+                <div class="d-flex align-items-center gap-1 text-muted small bg-dark bg-opacity-60 px-2 py-1 rounded-2 border border-secondary border-opacity-25">
+                    <i class="bi bi-person-fill text-info"></i>
+                    <span class="text-white fw-semibold">{{ item.object.owner.username }}</span>
+                </div>
+            </div>
+
+            <!-- ASSET TITLE & DESC -->
+            <div class="mb-3">
+                <h5 class="fw-bold text-white mb-2 line-clamp-2">{{ item.object.title }}</h5>
+                <p class="text-muted small flex-grow-1 mb-0" style="line-height: 1.6;">{{ item.object.description|truncatewords:20 }}</p>
+            </div>
+
+            <!-- DRM METADATA CHIPS -->
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                {% if item.object.file %}
+                    <span class="badge bg-info bg-opacity-10 text-cyan border border-info border-opacity-30 rounded-2"><i class="bi bi-paperclip me-1"></i> File Attached</span>
+                {% else %}
+                    <span class="badge bg-secondary bg-opacity-20 text-white border border-secondary border-opacity-40 rounded-2"><i class="bi bi-file-text me-1"></i> Text Payload</span>
+                {% endif %}
+                
+                <span class="badge bg-dark text-muted border border-secondary border-opacity-30 rounded-2"><i class="bi bi-shield-check me-1 text-success"></i> AES-256 Protected</span>
+            </div>
+
+            <!-- FOOTER WITH ACCESS ACTION -->
+            <div class="pt-3 mt-auto border-top border-secondary border-opacity-25 d-flex justify-content-between align-items-center">
+                <small class="text-muted"><i class="bi bi-calendar3 me-1"></i>{{ item.object.created_at|date:"M d, Y" }}</small>
+
+                {% if item.has_access %}
+                    <a href="{% url 'content_detail' item.object.id %}" class="btn btn-success btn-sm px-3 rounded-3 fw-bold d-inline-flex align-items-center gap-1" style="box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);">
+                        <i class="bi bi-unlock-fill"></i> Access Content
+                    </a>
+                {% else %}
+                    <a href="{% url 'content_detail' item.object.id %}" class="btn btn-outline-danger btn-sm px-3 rounded-3 fw-bold d-inline-flex align-items-center gap-1" style="box-shadow: 0 0 15px rgba(244, 63, 94, 0.2);">
+                        <i class="bi bi-lock-fill"></i> Inspect / Request
+                    </a>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card card-custom p-5 text-center text-muted">
+    <i class="bi bi-collection-play fs-1 text-secondary mb-3"></i>
+    <h5 class="text-white fw-bold">No Digital Content Assets Published</h5>
+    <p class="mb-4">Check back later or publish a new digital asset to start DRM protection.</p>
+    {% if user.profile.is_content_manager %}
+    <div>
+        <a href="{% url 'content_create' %}" class="btn btn-primary-custom px-4">Publish Content Asset</a>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function filterCatalog() {
+        const query = document.getElementById('catalogSearchInput').value.toLowerCase();
+        const items = document.querySelectorAll('.catalog-item');
+
+        items.forEach(item => {
+            const text = item.getAttribute('data-text');
+            if (text.includes(query)) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    function filterCategory(category, btn) {
+        document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.remove('active', 'text-cyan'));
+        btn.classList.add('active', 'text-cyan');
+
+        const items = document.querySelectorAll('.catalog-item');
+        items.forEach(item => {
+            const access = item.getAttribute('data-access');
+            if (category === 'all' || access === category) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}
+

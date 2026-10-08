@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}DRM System — Enterprise Digital Rights Platform{% endblock %}</title>
+    <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <style>
+        :root {
+            --drm-bg-dark: #070b14;
+            --drm-bg-surface: #0b1222;
+            --drm-bg-card: #0f172a;
+            --drm-bg-card-hover: #162036;
+            --drm-card-border: #1e293b;
+            --drm-card-border-glow: #334155;
+            
+            --drm-cyan: #00f2fe;
+            --drm-blue: #38bdf8;
+            --drm-indigo: #6366f1;
+            --drm-purple: #8b5cf6;
+            
+            --drm-success: #10b981;
+            --drm-warning: #f59e0b;
+            --drm-danger: #f43f5e;
+            
+            --drm-text-bright: #ffffff;
+            --drm-text-main: #f1f5f9;
+            --drm-text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--drm-bg-dark);
+            background-image: 
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.15), transparent),
+                radial-gradient(ellipse 60% 40% at 100% 0%, rgba(0, 242, 254, 0.08), transparent);
+            background-attachment: fixed;
+            color: var(--drm-text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6, .navbar-brand, .font-heading {
+            font-family: 'Outfit', sans-serif;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+        }
+
+        .text-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* HIGH-CONTRAST TEXT OVERRIDES */
+        p, span, div, label, td, th {
+            color: var(--drm-text-main);
+        }
+
+        .text-muted {
+            color: var(--drm-text-muted) !important;
+        }
+
+        .text-cyan {
+            color: var(--drm-cyan) !important;
+        }
+
+        .text-indigo {
+            color: var(--drm-indigo) !important;
+        }
+
+        /* GLASSMORPHIC NAVBAR */
+        .navbar-custom {
+            background: rgba(11, 18, 34, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1.5px solid var(--drm-card-border);
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.5);
+            padding: 0.75rem 0;
+            z-index: 1040;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.45rem;
+            color: #ffffff !important;
+        }
+
+        .brand-logo-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.2), rgba(99, 102, 241, 0.2));
+            border: 1px solid var(--drm-cyan);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 12px rgba(0, 242, 254, 0.25);
+        }
+
+        .nav-link {
+            font-weight: 600;
+            color: #cbd5e1 !important;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            padding: 0.5rem 0.85rem !important;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .nav-link:hover {
+            color: #ffffff !important;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .nav-link.active {
+            color: #ffffff !important;
+            background: rgba(0, 242, 254, 0.12);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            box-shadow: 0 0 12px rgba(0, 242, 254, 0.15);
+        }
+
+        /* CARDS */
+        .card-custom {
+            background-color: var(--drm-bg-card) !important;
+            border: 1.5px solid var(--drm-card-border);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-custom:hover {
+            border-color: var(--drm-card-border-glow);
+            box-shadow: 0 14px 35px rgba(0, 242, 254, 0.08);
+        }
+
+        .card-interactive:hover {
+            transform: translateY(-3px);
+            border-color: var(--drm-cyan);
+            box-shadow: 0 15px 35px rgba(0, 242, 254, 0.18);
+        }
+
+        .stat-card {
+            padding: 1.4rem;
+            border-radius: 16px;
+            background: linear-gradient(145deg, #0f172a 0%, #162036 100%) !important;
+            border: 1.5px solid var(--drm-card-border);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.25s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: #334155;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        /* BADGES */
+        .badge-role {
+            font-size: 0.72rem;
+            padding: 0.4em 0.85em;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .badge-admin { 
+            background: rgba(244, 63, 94, 0.15) !important; 
+            color: #fda4af !important; 
+            border: 1px solid rgba(244, 63, 94, 0.4); 
+        }
+        .badge-manager { 
+            background: rgba(56, 189, 248, 0.15) !important; 
+            color: #7dd3fc !important; 
+            border: 1px solid rgba(56, 189, 248, 0.4); 
+        }
+        .badge-user { 
+            background: rgba(16, 185, 129, 0.15) !important; 
+            color: #6ee7b7 !important; 
+            border: 1px solid rgba(16, 185, 129, 0.4); 
+        }
+
+        .badge-status-active {
+            background: rgba(16, 185, 129, 0.15) !important;
+            color: #34d399 !important;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .badge-status-expired {
+            background: rgba(245, 158, 11, 0.15) !important;
+            color: #fbbf24 !important;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+
+        .badge-status-revoked {
+            background: rgba(244, 63, 94, 0.15) !important;
+            color: #f87171 !important;
+            border: 1px solid rgba(244, 63, 94, 0.4);
+        }
+
+        /* BUTTONS */
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #00f2fe 0%, #38bdf8 100%);
+            border: none;
+            color: #040914 !important;
+            font-weight: 700;
+            padding: 0.6rem 1.3rem;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.25);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+
+        .btn-primary-custom:hover {
+            color: #000000 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 242, 254, 0.4);
+        }
+
+        .btn-outline-custom {
+            background: transparent;
+            border: 1.5px solid var(--drm-cyan);
+            color: var(--drm-cyan) !important;
+            font-weight: 700;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+
+        .btn-outline-custom:hover {
+            background: var(--drm-cyan);
+            color: #040914 !important;
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.25);
+        }
+
+        .btn-glass {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--drm-card-border);
+            color: #f1f5f9 !important;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-glass:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #334155;
+            color: #ffffff !important;
+        }
+
+        /* TABLES HIGH CONTRAST */
+        .table-dark-custom {
+            --bs-table-bg: transparent;
+            --bs-table-color: #ffffff;
+            --bs-table-border-color: #1e293b;
+        }
+
+        .table-dark-custom th {
+            font-weight: 700;
+            color: var(--drm-cyan) !important;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.8px;
+            border-bottom: 2px solid #1e293b;
+            padding: 1rem 0.85rem;
+            background: rgba(15, 23, 42, 0.6);
+        }
+
+        .table-dark-custom td {
+            padding: 1rem 0.85rem;
+            color: #f8fafc !important;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .table-dark-custom tbody tr {
+            transition: background 0.15s ease;
+        }
+
+        .table-dark-custom tbody tr:hover {
+            background-color: rgba(30, 41, 59, 0.5);
+        }
+
+        /* FORM CONTROLS HIGH READABILITY */
+        .form-label {
+            color: #ffffff !important;
+            font-weight: 700;
+            font-size: 0.88rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .form-control, .form-select, select, textarea {
+            background-color: #0b1222 !important;
+            border: 1.5px solid #1e293b !important;
+            color: #ffffff !important;
+            border-radius: 10px !important;
+            padding: 0.7rem 1rem !important;
+            font-size: 0.92rem !important;
+            transition: all 0.2s ease !important;
+        }
+
+        option {
+            background-color: #0f172a !important;
+            color: #ffffff !important;
+            padding: 0.5rem;
+        }
+
+        .form-control:focus, .form-select:focus, select:focus, textarea:focus {
+            border-color: var(--drm-cyan) !important;
+            box-shadow: 0 0 14px rgba(0, 242, 254, 0.25) !important;
+            outline: none !important;
+        }
+
+        ::placeholder {
+            color: #64748b !important;
+            opacity: 1 !important;
+        }
+
+        .form-text {
+            color: #94a3b8 !important;
+            font-size: 0.82rem;
+            margin-top: 0.35rem;
+        }
+
+        /* BANNER HEADER SECTION */
+        .page-header-banner {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(11, 18, 34, 0.9) 100%);
+            border: 1.5px solid var(--drm-card-border);
+            border-radius: 16px;
+            padding: 1.5rem 1.8rem;
+            margin-bottom: 1.75rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--drm-cyan), var(--drm-indigo));
+        }
+
+        /* SYSTEM STATUS DOT */
+        .pulse-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        .pulse-dot.online {
+            background-color: var(--drm-success);
+            color: var(--drm-success);
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.15); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        /* FOOTER */
+        .footer {
+            margin-top: auto;
+            border-top: 1.5px solid var(--drm-card-border);
+            padding: 1.5rem 0;
+            background: #040812;
+            color: var(--drm-text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #070b14;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
+        <div class="container-fluid px-lg-4">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'dashboard' %}">
+                <div class="brand-logo-icon">
+                    <i class="bi bi-shield-lock-fill fs-5" style="color: var(--drm-cyan);"></i>
+                </div>
+                <div>
+                    <span class="fw-bold tracking-tight">DRM<span class="text-cyan">Guard</span></span>
+                    <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-30 rounded-pill fs-8 ms-1 px-2 py-0.5">ENTERPRISE v2.6</span>
+                </div>
+            </a>
+
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse mt-3 mt-lg-0" id="navbarMain">
+                {% if user.is_authenticated %}
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4 gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+                            <i class="bi bi-grid-1x2-fill text-info"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'content_list' or request.resolver_match.url_name == 'content_detail' %}active{% endif %}" href="{% url 'content_list' %}">
+                            <i class="bi bi-collection-play-fill text-primary"></i> Browse Content
+                        </a>
+                    </li>
+                    
+                    {% if user.profile.is_normal_user %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'my_licenses' %}active{% endif %}" href="{% url 'my_licenses' %}">
+                            <i class="bi bi-key-fill text-warning"></i> My Licenses
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% if user.profile.is_content_manager %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'content_manage' in request.resolver_match.url_name or 'content_create' in request.resolver_match.url_name or 'content_edit' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'content_manage' %}">
+                            <i class="bi bi-folder-check text-success"></i> Content Manager
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'license_manage' in request.resolver_match.url_name or 'license_create' in request.resolver_match.url_name or 'license_edit' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'license_manage' %}">
+                            <i class="bi bi-shield-check text-info"></i> License Control
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'access_logs' %}active{% endif %}" href="{% url 'access_logs' %}">
+                            <i class="bi bi-journal-text text-secondary"></i> Access Logs
+                        </a>
+                    </li>
+
+                    {% if user.profile.is_admin %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'user_manage' in request.resolver_match.url_name or 'user_update_role' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'user_manage' %}">
+                            <i class="bi bi-people-fill text-danger"></i> User Clearance
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+
+                <div class="d-flex align-items-center gap-3 pt-2 pt-lg-0 border-top border-secondary border-opacity-25 border-lg-0">
+                    <div class="d-flex align-items-center gap-2 bg-dark bg-opacity-50 p-2 rounded-3 border border-secondary border-opacity-25">
+                        <div class="stat-icon bg-info bg-opacity-10 text-cyan rounded-circle" style="width: 34px; height: 34px; font-size: 1.1rem;">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <div class="lh-1 pe-2">
+                            <div class="fw-bold small text-white">{{ user.username }}</div>
+                            <span class="badge badge-role mt-1 {% if user.profile.is_admin %}badge-admin{% elif user.profile.is_content_manager %}badge-manager{% else %}badge-user{% endif %}">
+                                {{ user.profile.get_role_display }}
+                            </span>
+                        </div>
+                    </div>
+                    <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm rounded-3 px-3 fw-bold d-flex align-items-center gap-1" title="Sign out of DRM session">
+                        <i class="bi bi-box-arrow-right"></i> <span class="d-none d-sm-inline">Logout</span>
+                    </a>
+                </div>
+                {% else %}
+                <ul class="navbar-nav ms-auto gap-2">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right me-1"></i> Sign In</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary-custom btn-sm" href="{% url 'register' %}">Get Started <i class="bi bi-arrow-right ms-1"></i></a>
+                    </li>
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- ALERT MESSAGES -->
+    <div class="container mt-3">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show border-0 shadow-lg text-white" style="background: #0f172a; border-left: 4px solid var(--drm-cyan) !important;" role="alert">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi {% if message.tags == 'danger' or message.tags == 'error' %}bi-exclamation-octagon-fill text-danger fs-5{% elif message.tags == 'success' %}bi-check-circle-fill text-success fs-5{% else %}bi-info-circle-fill text-info fs-5{% endif %}"></i>
+                        <strong class="text-white fw-semibold">{{ message }}</strong>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- MAIN CONTENT BODY -->
+    <main class="container my-4 flex-grow-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer text-center">
+        <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-shield-check text-cyan fs-5"></i>
+                <span class="fw-bold text-white">DRM Guard Platform</span>
+                <span class="text-muted small">| Enterprise DRM & Rights Management</span>
+            </div>
+            <p class="mb-0 text-muted small">
+                Architecture: Django 6.0 & Django REST Framework &bull; Real-time Verification Engine
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+

@@ -1,0 +1,85 @@
+{% extends 'DRM_App/base.html' %}
+
+{% block title %}My Active Licenses — DRM Guard{% endblock %}
+
+{% block content %}
+<!-- HEADER BANNER -->
+<div class="page-header-banner d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-30 rounded-pill px-3 py-1 fw-semibold">
+                <i class="bi bi-key-fill me-1"></i> User Digital Rights
+            </span>
+            <span class="text-muted small">| Active Passes: <strong>{{ licenses|length }}</strong></span>
+        </div>
+        <h2 class="fw-bold text-white mb-1">My Digital Rights & Licenses</h2>
+        <p class="text-muted mb-0">Track active digital access permits, expiration dates, and rights clearance.</p>
+    </div>
+    
+    <div>
+        <a href="{% url 'content_list' %}" class="btn btn-primary-custom">
+            <i class="bi bi-collection-play-fill"></i> Browse Asset Catalog
+        </a>
+    </div>
+</div>
+
+{% if licenses %}
+<div class="row g-4">
+    {% for lic in licenses %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card card-custom card-interactive h-100 p-4 border-secondary border-opacity-40 d-flex flex-column">
+            
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="badge bg-dark text-cyan border border-info border-opacity-30 font-heading">#LIC-{{ lic.id }}</span>
+                {% if lic.status == 'ACTIVE' and lic.expiry_date >= now %}
+                    <span class="badge badge-status-active"><i class="bi bi-shield-check me-1"></i> ACTIVE</span>
+                {% elif lic.status == 'EXPIRED' or lic.expiry_date < now %}
+                    <span class="badge badge-status-expired"><i class="bi bi-clock-history me-1"></i> EXPIRED</span>
+                {% else %}
+                    <span class="badge badge-status-revoked"><i class="bi bi-x-circle me-1"></i> REVOKED</span>
+                {% endif %}
+            </div>
+
+            <h5 class="fw-bold text-white mb-2 line-clamp-2">{{ lic.content.title }}</h5>
+            <p class="text-muted small mb-3 flex-grow-1" style="line-height: 1.6;">{{ lic.content.description|truncatewords:15 }}</p>
+
+            <div class="bg-dark p-3 rounded-3 border border-secondary border-opacity-30 mb-3 small">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="text-muted">Start Date:</span>
+                    <span class="text-white fw-bold">{{ lic.start_date|date:"M d, Y" }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Expiration Date:</span>
+                    <span class="{% if lic.expiry_date < now %}text-danger{% else %}text-success{% endif %} fw-bold">
+                        {{ lic.expiry_date|date:"M d, Y H:i" }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="mt-auto">
+                {% if lic.status == 'ACTIVE' and lic.expiry_date >= now %}
+                    <a href="{% url 'content_detail' lic.content.id %}" class="btn btn-success w-100 py-2 rounded-3 fw-bold d-inline-flex align-items-center justify-content-center gap-1" style="box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);">
+                        <i class="bi bi-unlock-fill"></i> Access Content Now
+                    </a>
+                {% else %}
+                    <a href="{% url 'content_detail' lic.content.id %}" class="btn btn-glass w-100 py-2 rounded-3 text-muted fw-bold d-inline-flex align-items-center justify-content-center gap-1">
+                        <i class="bi bi-lock-fill"></i> View Expiration Details
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card card-custom p-5 text-center text-muted">
+    <i class="bi bi-key-fill fs-1 text-warning mb-3 opacity-75"></i>
+    <h5 class="text-white fw-bold">No Active Digital Licenses Assigned</h5>
+    <p class="mb-4">You currently do not have active digital access permits bound to your account.</p>
+    <div>
+        <a href="{% url 'content_list' %}" class="btn btn-primary-custom px-4">Browse Catalog & Request Access</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+

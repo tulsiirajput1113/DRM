@@ -1,0 +1,125 @@
+{% extends 'DRM_App/base.html' %}
+
+{% block title %}License Control Center — DRM Guard{% endblock %}
+
+{% block content %}
+<!-- HEADER BANNER -->
+<div class="page-header-banner d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="badge bg-info bg-opacity-10 text-cyan border border-info border-opacity-30 rounded-pill px-3 py-1 fw-semibold">
+                <i class="bi bi-shield-check me-1"></i> Rights License Governance
+            </span>
+            <span class="text-muted small">| Total Licenses: <strong>{{ licenses|length }}</strong></span>
+        </div>
+        <h2 class="fw-bold text-white mb-1">DRM License Control Center</h2>
+        <p class="text-muted mb-0">Issue, extend, inspect, or revoke digital access licenses for enterprise users.</p>
+    </div>
+    
+    <div>
+        <a href="{% url 'license_create' %}" class="btn btn-primary-custom">
+            <i class="bi bi-key-fill"></i> Issue New License
+        </a>
+    </div>
+</div>
+
+<div class="card card-custom p-4">
+    <!-- SEARCH BAR -->
+    <div class="mb-4">
+        <div class="row g-3">
+            <div class="col-md-6 col-lg-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-dark border-secondary text-cyan border-opacity-50"><i class="bi bi-search"></i></span>
+                    <input type="text" id="licenseSearchInput" class="form-control" placeholder="Search by user or asset title..." onkeyup="filterLicenseTable()">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if licenses %}
+    <div class="table-responsive">
+        <table class="table table-dark-custom align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>License Token</th>
+                    <th>Licensee (Target User)</th>
+                    <th>Protected Content Asset</th>
+                    <th>Issue Date</th>
+                    <th>Expiration Timestamp</th>
+                    <th>DRM Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lic in licenses %}
+                <tr class="license-row">
+                    <td class="fw-bold text-cyan text-mono">#LIC-{{ lic.id }}</td>
+                    <td class="lic-user">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="stat-icon bg-info bg-opacity-15 text-cyan rounded-circle" style="width: 28px; height: 28px; font-size: 0.85rem;">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                            <span class="fw-bold text-white">{{ lic.user.username }}</span>
+                        </div>
+                    </td>
+                    <td class="fw-medium text-white lic-title">{{ lic.content.title }}</td>
+                    <td class="small text-muted">{{ lic.start_date|date:"M d, Y H:i" }}</td>
+                    <td class="small {% if lic.status == 'EXPIRED' %}text-danger fw-bold{% else %}text-white{% endif %}">
+                        {{ lic.expiry_date|date:"M d, Y H:i" }}
+                    </td>
+                    <td>
+                        {% if lic.status == 'ACTIVE' %}
+                            <span class="badge badge-status-active"><i class="bi bi-check-circle me-1"></i> ACTIVE</span>
+                        {% elif lic.status == 'EXPIRED' %}
+                            <span class="badge badge-status-expired"><i class="bi bi-clock-history me-1"></i> EXPIRED</span>
+                        {% else %}
+                            <span class="badge badge-status-revoked"><i class="bi bi-x-circle me-1"></i> REVOKED</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <div class="btn-group" role="group">
+                            <a href="{% url 'license_edit' lic.id %}" class="btn btn-glass btn-sm text-warning" title="Edit Validity/Status">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            {% if lic.status != 'REVOKED' %}
+                            <a href="{% url 'license_revoke' lic.id %}" class="btn btn-glass btn-sm text-danger" title="Revoke License" onclick="return confirm('Are you sure you want to REVOKE this license? Access will be blocked immediately.');">
+                                <i class="bi bi-slash-circle me-1"></i> Revoke
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5 text-muted">
+        <i class="bi bi-key fs-1 mb-2 d-block text-secondary"></i>
+        <h5 class="text-white fw-bold">No DRM Access Licenses Issued</h5>
+        <p class="mb-4">Click "Issue New License" to grant digital rights to users.</p>
+        <a href="{% url 'license_create' %}" class="btn btn-primary-custom px-4">Issue New License</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function filterLicenseTable() {
+        const query = document.getElementById('licenseSearchInput').value.toLowerCase();
+        const rows = document.querySelectorAll('.license-row');
+
+        rows.forEach(row => {
+            const user = row.querySelector('.lic-user').textContent.toLowerCase();
+            const title = row.querySelector('.lic-title').textContent.toLowerCase();
+            if (user.includes(query) || title.includes(query)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}
+

@@ -1,0 +1,309 @@
+{% extends 'DRM_App/base.html' %}
+
+{% block title %}Dashboard — DRM Enterprise Guard{% endblock %}
+
+{% block content %}
+<!-- HEADER BANNER -->
+<div class="page-header-banner d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-30 rounded-pill px-3 py-1 fw-semibold d-inline-flex align-items-center gap-2">
+                <span class="pulse-dot online"></span> DRM Engine Online
+            </span>
+            <span class="text-muted small">| Security Level: <strong>ENFORCED</strong></span>
+        </div>
+        <h2 class="fw-bold text-white mb-1">DRM Security Control Dashboard</h2>
+        <p class="text-muted mb-0">Role Clearance: <span class="badge badge-role {% if user.profile.is_admin %}badge-admin{% elif user.profile.is_content_manager %}badge-manager{% else %}badge-user{% endif %}">{{ user.profile.get_role_display }}</span> &bull; Real-time Digital Rights Enforcement & Access Control</p>
+    </div>
+    
+    <div class="d-flex flex-wrap gap-2">
+        {% if user.profile.is_content_manager %}
+            <a href="{% url 'content_create' %}" class="btn btn-primary-custom btn-sm">
+                <i class="bi bi-plus-circle-fill"></i> Add Content Asset
+            </a>
+            <a href="{% url 'license_create' %}" class="btn btn-outline-custom btn-sm">
+                <i class="bi bi-key-fill"></i> Issue License
+            </a>
+        {% else %}
+            <a href="{% url 'content_list' %}" class="btn btn-primary-custom btn-sm">
+                <i class="bi bi-collection-play-fill"></i> Browse Catalog
+            </a>
+            <a href="{% url 'my_licenses' %}" class="btn btn-outline-custom btn-sm">
+                <i class="bi bi-key-fill"></i> My Licenses
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- STAT CARDS ROW -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="text-muted small text-uppercase fw-bold" style="letter-spacing: 0.8px;">Total Users</div>
+                    <div class="fs-2 fw-bold text-white mt-1 font-heading">{{ total_users }}</div>
+                    <div class="small text-cyan mt-1"><i class="bi bi-shield-check me-1"></i>Registered Accounts</div>
+                </div>
+                <div class="stat-icon" style="background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1.5px solid rgba(99, 102, 241, 0.3);">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="text-muted small text-uppercase fw-bold" style="letter-spacing: 0.8px;">Protected Assets</div>
+                    <div class="fs-2 fw-bold text-white mt-1 font-heading">{{ total_content }}</div>
+                    <div class="small text-info mt-1"><i class="bi bi-lock-fill me-1"></i>DRM Encrypted</div>
+                </div>
+                <div class="stat-icon" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1.5px solid rgba(56, 189, 248, 0.3);">
+                    <i class="bi bi-shield-lock-fill"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="text-muted small text-uppercase fw-bold" style="letter-spacing: 0.8px;">Active Licenses</div>
+                    <div class="fs-2 fw-bold text-success mt-1 font-heading">{{ active_licenses }}</div>
+                    <div class="small text-success mt-1"><i class="bi bi-patch-check-fill me-1"></i>Valid Rights Issued</div>
+                </div>
+                <div class="stat-icon" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1.5px solid rgba(16, 185, 129, 0.3);">
+                    <i class="bi bi-patch-check-fill"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="text-muted small text-uppercase fw-bold" style="letter-spacing: 0.8px;">Expired Licenses</div>
+                    <div class="fs-2 fw-bold text-warning mt-1 font-heading">{{ expired_licenses }}</div>
+                    <div class="small text-warning mt-1"><i class="bi bi-hourglass-bottom me-1"></i>Requires Renewal</div>
+                </div>
+                <div class="stat-icon" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1.5px solid rgba(245, 158, 11, 0.3);">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN DASHBOARD CONTENT GRID -->
+<div class="row g-4">
+    <!-- LEFT MAIN COLUMN: AUDIT LOGS & DRM MATRIX -->
+    <div class="col-lg-8">
+        <!-- AUDIT LOGS CARD -->
+        <div class="card card-custom p-4 mb-4">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3">
+                <div>
+                    <h5 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
+                        <i class="bi bi-activity text-cyan"></i> Recent Security Audit Logs
+                    </h5>
+                    <p class="text-muted small mb-0">Live access requests filtered by validation engine</p>
+                </div>
+                <a href="{% url 'access_logs' %}" class="btn btn-glass btn-sm px-3 text-cyan">
+                    View Full Audit Trail <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+
+            {% if recent_logs %}
+            <div class="table-responsive">
+                <table class="table table-dark-custom align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Protected Asset</th>
+                            <th>Timestamp</th>
+                            <th>DRM Decision</th>
+                            <th>Audit Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in recent_logs %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="stat-icon bg-secondary bg-opacity-20 text-info rounded-circle" style="width: 28px; height: 28px; font-size: 0.85rem;">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                    <span class="fw-bold text-white">{{ log.user.username|default:"Anonymous" }}</span>
+                                </div>
+                            </td>
+                            <td class="fw-medium text-white">{{ log.content.title|default:"Deleted Asset"|truncatewords:5 }}</td>
+                            <td class="small text-muted">{{ log.access_time|date:"M d, H:i:s" }}</td>
+                            <td>
+                                {% if log.access_status == 'ACCESS_GRANTED' %}
+                                    <span class="badge badge-status-active"><i class="bi bi-shield-check me-1"></i> GRANTED</span>
+                                {% elif log.access_status == 'LICENSE_EXPIRED' %}
+                                    <span class="badge badge-status-expired"><i class="bi bi-hourglass-bottom me-1"></i> EXPIRED</span>
+                                {% elif log.access_status == 'NO_LICENSE' %}
+                                    <span class="badge badge-status-revoked"><i class="bi bi-x-octagon me-1"></i> NO_LICENSE</span>
+                                {% else %}
+                                    <span class="badge bg-secondary bg-opacity-20 text-white border border-secondary px-2 py-1"><i class="bi bi-slash-circle me-1"></i> DENIED</span>
+                                {% endif %}
+                            </td>
+                            <td class="small text-muted" title="{{ log.reason }}">{{ log.reason|truncatewords:6 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-inbox fs-1 mb-2 d-block text-secondary"></i>
+                <p class="mb-0">No security access logs recorded yet.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- DRM SYSTEM ARCHITECTURE & POLICY MATRIX -->
+        <div class="card card-custom p-4">
+            <h5 class="fw-bold text-white mb-3 d-flex align-items-center gap-2">
+                <i class="bi bi-diagram-3-fill text-indigo"></i> DRM Protection Architecture Matrix
+            </h5>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="bg-dark bg-opacity-50 p-3 rounded-3 border border-secondary border-opacity-25 h-100">
+                        <div class="d-flex align-items-center gap-2 mb-2 text-cyan fw-bold">
+                            <i class="bi bi-shield-lock fs-5"></i> 1. Access Control
+                        </div>
+                        <p class="text-muted small mb-0">Role-Based Access Control (RBAC) enforces distinct clearance for Admin, Content Managers, and End Users.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="bg-dark bg-opacity-50 p-3 rounded-3 border border-secondary border-opacity-25 h-100">
+                        <div class="d-flex align-items-center gap-2 mb-2 text-warning fw-bold">
+                            <i class="bi bi-key fs-5"></i> 2. Validation Engine
+                        </div>
+                        <p class="text-muted small mb-0">Real-time inspection verifies active license keys, start date, expiration timestamp, and revocation flags.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="bg-dark bg-opacity-50 p-3 rounded-3 border border-secondary border-opacity-25 h-100">
+                        <div class="d-flex align-items-center gap-2 mb-2 text-success fw-bold">
+                            <i class="bi bi-journal-check fs-5"></i> 3. Immutable Logging
+                        </div>
+                        <p class="text-muted small mb-0">Every access attempt records timestamp, user identity, asset ID, IP address, and decision outcome.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT SIDEBAR COLUMN: SYSTEM HEALTH & QUICK ACTIONS -->
+    <div class="col-lg-4">
+        <!-- SYSTEM STATUS HUB CARD -->
+        <div class="card card-custom p-4 mb-4">
+            <h6 class="fw-bold text-white mb-3 text-uppercase small text-spacing" style="letter-spacing: 0.8px;">
+                <i class="bi bi-cpu-fill text-cyan me-1"></i> DRM Enforcement Status
+            </h6>
+
+            <div class="d-flex flex-column gap-3">
+                <div class="d-flex justify-content-between align-items-center p-2.5 rounded-3 bg-dark bg-opacity-60 border border-secondary border-opacity-25">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="pulse-dot online"></span>
+                        <span class="small fw-semibold text-white">License Validator Engine</span>
+                    </div>
+                    <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-40">ACTIVE</span>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center p-2.5 rounded-3 bg-dark bg-opacity-60 border border-secondary border-opacity-25">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="pulse-dot online"></span>
+                        <span class="small fw-semibold text-white">Audit Trail Logging Pipeline</span>
+                    </div>
+                    <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-40">ONLINE</span>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center p-2.5 rounded-3 bg-dark bg-opacity-60 border border-secondary border-opacity-25">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="pulse-dot online"></span>
+                        <span class="small fw-semibold text-white">REST API Gateway</span>
+                    </div>
+                    <span class="badge bg-info bg-opacity-20 text-info border border-info border-opacity-40">READY</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- QUICK ACTION HUB -->
+        <div class="card card-custom p-4 mb-4">
+            <h6 class="fw-bold text-white mb-3 text-uppercase small text-spacing" style="letter-spacing: 0.8px;">
+                <i class="bi bi-lightning-charge-fill text-warning me-1"></i> Management Shortcuts
+            </h6>
+
+            <div class="d-grid gap-2">
+                <a href="{% url 'content_list' %}" class="btn btn-glass text-start d-flex align-items-center justify-content-between p-2.5">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-collection-play text-primary"></i>
+                        <span>Browse Asset Catalog</span>
+                    </div>
+                    <i class="bi border-0 bi-chevron-right small text-muted"></i>
+                </a>
+
+                {% if user.profile.is_normal_user %}
+                <a href="{% url 'my_licenses' %}" class="btn btn-glass text-start d-flex align-items-center justify-content-between p-2.5">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-key-fill text-warning"></i>
+                        <span>My Digital Licenses</span>
+                    </div>
+                    <i class="bi border-0 bi-chevron-right small text-muted"></i>
+                </a>
+                {% endif %}
+
+                {% if user.profile.is_content_manager %}
+                <a href="{% url 'content_manage' %}" class="btn btn-glass text-start d-flex align-items-center justify-content-between p-2.5">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-folder-check text-success"></i>
+                        <span>Manage Digital Content</span>
+                    </div>
+                    <i class="bi border-0 bi-chevron-right small text-muted"></i>
+                </a>
+
+                <a href="{% url 'license_manage' %}" class="btn btn-glass text-start d-flex align-items-center justify-content-between p-2.5">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-shield-check text-info"></i>
+                        <span>Issue / Control Licenses</span>
+                    </div>
+                    <i class="bi border-0 bi-chevron-right small text-muted"></i>
+                </a>
+                {% endif %}
+
+                {% if user.profile.is_admin %}
+                <a href="{% url 'user_manage' %}" class="btn btn-glass text-start d-flex align-items-center justify-content-between p-2.5">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-people-fill text-danger"></i>
+                        <span>User Role Clearance</span>
+                    </div>
+                    <i class="bi border-0 bi-chevron-right small text-muted"></i>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- WORKFLOW PIPELINE FOOTPRINT CARD -->
+        <div class="card card-custom p-4 bg-gradient">
+            <h6 class="fw-bold text-white mb-2 small text-uppercase" style="letter-spacing: 0.8px;">
+                <i class="bi bi-shield-fill-check text-cyan me-1"></i> DRM Enforcement Flow
+            </h6>
+            <div class="text-muted small mb-3">Core security pipeline executed on every content request:</div>
+
+            <div class="d-flex align-items-center flex-wrap gap-1 small fw-bold text-white bg-dark p-2.5 rounded-3 border border-secondary border-opacity-25">
+                <span class="text-info">User</span> &rarr; 
+                <span class="text-cyan">Asset</span> &rarr; 
+                <span class="text-warning">License</span> &rarr; 
+                <span class="text-indigo">Validation</span> &rarr; 
+                <span class="text-success">Allow/Deny</span> &rarr; 
+                <span class="text-muted">Log</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

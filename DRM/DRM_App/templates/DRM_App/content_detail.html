@@ -1,0 +1,160 @@
+{% extends 'DRM_App/base.html' %}
+
+{% block title %}{{ content.title }} — DRM Rights Clearance Granted{% endblock %}
+
+{% block content %}
+<!-- HEADER NAV & BADGE -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div class="d-flex align-items-center gap-2">
+        <span class="badge badge-status-active px-3 py-2 fs-6">
+            <i class="bi bi-shield-check me-1"></i> AUTHORIZATION GRANTED: {{ access_status }}
+        </span>
+        <span class="text-muted small">| Protected Asset ID: <strong>#AST-{{ content.id }}</strong></span>
+    </div>
+
+    <a href="{% url 'content_list' %}" class="btn btn-glass btn-sm">
+        <i class="bi bi-arrow-left me-1"></i> Back to Catalog
+    </a>
+</div>
+
+<div class="row g-4">
+    <!-- LEFT MAIN COLUMN: PROTECTED CONTENT PAYLOAD -->
+    <div class="col-lg-8">
+        <div class="card card-custom p-4 border-success border-opacity-40 mb-4">
+            
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <span class="badge bg-info bg-opacity-10 text-cyan border border-info border-opacity-30 mb-2">RESTRICTED ACCESS PAYLOAD</span>
+                    <h2 class="fw-bold text-white mb-1">{{ content.title }}</h2>
+                    <div class="text-muted small d-flex flex-wrap align-items-center gap-2">
+                        <span>Published by <strong class="text-white"><i class="bi bi-person-circle text-info me-1"></i>{{ content.owner.username }}</strong></span>
+                        <span>&bull;</span>
+                        <span>Date: {{ content.created_at|date:"F d, Y H:i" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ENGINE VALIDATION NOTE -->
+            <div class="alert alert-dark border border-secondary border-opacity-40 mb-4 bg-dark bg-opacity-60 text-white">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-info-circle-fill text-cyan fs-5"></i>
+                    <div>
+                        <strong class="text-cyan">DRM Rights Engine Status:</strong>
+                        <div class="small text-muted mb-0">{{ reason }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DESCRIPTION -->
+            <div class="mb-4">
+                <h6 class="fw-bold text-white mb-2 text-uppercase small" style="letter-spacing: 0.8px;">
+                    <i class="bi bi-text-paragraph text-primary me-1"></i> Asset Description
+                </h6>
+                <p class="text-muted small leading-relaxed bg-dark bg-opacity-30 p-3 rounded-3 border border-secondary border-opacity-25">{{ content.description }}</p>
+            </div>
+
+            <!-- PROTECTED PAYLOAD BOX WITH WATERMARK STAMP -->
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="fw-bold text-white mb-0 text-uppercase small" style="letter-spacing: 0.8px;">
+                        <i class="bi bi-terminal-fill text-success me-1"></i> Decrypted Content Payload
+                    </h6>
+                    <span class="badge bg-dark text-cyan border border-info border-opacity-30 small">
+                        <i class="bi bi-shield-lock me-1"></i> WATERMARKED FOR {{ user.username|upper }}
+                    </span>
+                </div>
+
+                <div class="position-relative bg-dark p-4 rounded-3 border border-secondary text-mono text-light" style="background-color: #040812 !important; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); min-height: 180px;">
+                    <!-- WATERMARK STAMP -->
+                    <div class="position-absolute top-50 start-50 translate-middle pointer-events-none text-nowrap opacity-10 fw-bold text-cyan" style="font-size: 1.8rem; transform: translate(-50%, -50%) rotate(-15deg); user-select: none;">
+                        DRM PROTECTED &bull; {{ user.username|upper }} &bull; {{ user.email|default:"AUTHENTICATED" }}
+                    </div>
+
+                    <div class="position-relative z-1" style="white-space: pre-wrap; word-break: break-word;">{{ content.content_body|default:"[No text content body attached to this digital asset]" }}</div>
+                </div>
+            </div>
+
+            <!-- FILE DOWNLOAD ATTACHMENT CARD -->
+            {% if content.file %}
+            <div class="card bg-dark bg-opacity-70 border-secondary border-opacity-40 p-3.5 rounded-3 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon bg-primary bg-opacity-15 text-cyan rounded-3" style="width: 48px; height: 48px; font-size: 1.5rem;">
+                        <i class="bi bi-file-earmark-arrow-down-fill"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-white">Protected Digital File Attached</div>
+                        <div class="small text-muted text-mono">{{ content.file.name }}</div>
+                    </div>
+                </div>
+                <a href="{% url 'content_download' content.id %}" class="btn btn-primary-custom px-4 py-2">
+                    <i class="bi bi-download me-1"></i> Download Secured File
+                </a>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <!-- RIGHT SIDEBAR COLUMN: LICENSE AUDIT & CLEARANCE RULES -->
+    <div class="col-lg-4">
+        <!-- ACTIVE LICENSE AUDIT CARD -->
+        {% if license_obj %}
+        <div class="card card-custom p-4 mb-4 border-info border-opacity-30">
+            <h6 class="fw-bold text-white mb-3 text-uppercase small" style="letter-spacing: 0.8px;">
+                <i class="bi bi-key-fill text-warning me-1"></i> Rights License Footprint
+            </h6>
+
+            <div class="d-flex flex-column gap-2.5 small">
+                <div class="d-flex justify-content-between p-2 rounded-2 bg-dark bg-opacity-50 border border-secondary border-opacity-25">
+                    <span class="text-muted">License Token ID:</span>
+                    <strong class="text-cyan font-heading">#LIC-{{ license_obj.id }}</strong>
+                </div>
+
+                <div class="d-flex justify-content-between p-2 rounded-2 bg-dark bg-opacity-50 border border-secondary border-opacity-25">
+                    <span class="text-muted">Granted Licensee:</span>
+                    <strong class="text-white">{{ license_obj.user.username }}</strong>
+                </div>
+
+                <div class="d-flex justify-content-between p-2 rounded-2 bg-dark bg-opacity-50 border border-secondary border-opacity-25">
+                    <span class="text-muted">License Issue Date:</span>
+                    <span class="text-white">{{ license_obj.start_date|date:"M d, Y" }}</span>
+                </div>
+
+                <div class="d-flex justify-content-between p-2 rounded-2 bg-dark bg-opacity-50 border border-secondary border-opacity-25">
+                    <span class="text-muted">Expiration Timestamp:</span>
+                    <strong class="text-success">{{ license_obj.expiry_date|date:"M d, Y H:i" }}</strong>
+                </div>
+
+                <div class="d-flex justify-content-between p-2 rounded-2 bg-dark bg-opacity-50 border border-secondary border-opacity-25">
+                    <span class="text-muted">Current Rights Status:</span>
+                    <span class="badge badge-status-active"><i class="bi bi-check-circle me-1"></i> {{ license_obj.status }}</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- SECURITY POLICIES CARD -->
+        <div class="card card-custom p-4">
+            <h6 class="fw-bold text-white mb-3 text-uppercase small" style="letter-spacing: 0.8px;">
+                <i class="bi bi-shield-check text-cyan me-1"></i> Security Clearance Rules
+            </h6>
+
+            <div class="d-flex flex-column gap-2.5 small">
+                <div class="d-flex align-items-center justify-content-between text-muted">
+                    <span><i class="bi bi-check2-circle text-success me-1"></i> View Permission</span>
+                    <span class="text-success fw-bold">GRANTED</span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between text-muted">
+                    <span><i class="bi bi-lock text-warning me-1"></i> Screen Capture Protection</span>
+                    <span class="text-warning fw-bold">ENFORCED</span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between text-muted">
+                    <span><i class="bi bi-journal-text text-info me-1"></i> Audit Logging</span>
+                    <span class="text-info fw-bold">RECORDED</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
